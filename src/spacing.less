@@ -1,0 +1,60 @@
+//Steps to use as values for generated helpers
+@steps: 0rem, 0.5rem, 1rem, 1.5rem, 2rem, 2.5rem, 3rem, 3.5rem, 4rem;
+
+//Position abbreviations
+@positions: t, b, l, r;
+@positionsValues: top, bottom, left, right;
+
+//Generate the incremental steps for a property
+.genereateSteps (@property, @i: length(@steps)) when (@i > 0) {
+    @index: @i - 1;
+    @step: extract(@steps, @i);
+
+    &@{index} {
+        @{property}: @step  !important;
+    }
+
+    .genereateSteps(@property, @i - 1);
+}
+
+//Generate helpers for a provided property
+.genereatePositions (@property, @i: length(@positions)) when (@i > 0) {
+    @key: extract(@positions, @i);
+    @position: extract(@positionsValues, @i);
+
+    &@{key}- {
+        @fullProperty: ~"@{property}-@{position}";
+        .genereateSteps(@fullProperty);
+    }
+
+    .genereatePositions(@property, @i - 1);
+}
+
+//Generate helpers for x, y and all positions
+.genereateAxis (@property) {
+    &a- {
+        .genereateSteps(~"@{property}");
+    }
+
+    &x- {
+        .genereateSteps(~"@{property}-left");
+        .genereateSteps(~"@{property}-right");
+    }
+
+    &y- {
+        .genereateSteps(~"@{property}-top");
+        .genereateSteps(~"@{property}-bottom");
+    }
+}
+
+// Margin helpers
+.m- {
+    .genereatePositions(margin);
+    .genereateAxis(margin);
+}
+
+// Padding helpers
+.p- {
+    .genereatePositions(padding);
+    .genereateAxis(padding);
+}
